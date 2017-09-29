@@ -1,179 +1,86 @@
-
-
-<script type="text/x-red" data-template-name="confluent in">
+<script type="text/x-red" data-template-name="ksql">
     <div class="form-row">
-        <label for="node-input-proxy"><i class="icon-tag"></i> REST Proxy</label>
-        <input type="text" id="node-input-proxy">
+        <label for="node-input-rest"><i class="icon-tag"></i> KSQL Connection</label>
+        <input type="text" id="node-input-rest">
     </div>
     <div class="form-row">
-        <label for="node-input-topic"><i class="icon-tasks"></i> Topic</label>
-        <input type="text" id="node-input-topic" placeholder="Topic">
-    </div>
-    <div class="form-row">
-        <label for="node-input-cgroup"><i class="icon-tasks"></i> Group ID</label>
-        <input type="text" id="node-input-cgroup" placeholder="Group ID">
-    </div>
+        <label for="node-input-command"><i class="icon-tasks"></i> KSQL Command</label>
+        <input type="text" id="node-input-command" placeholder="SHOW STREAMS;">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="confluent in">
-    <p>Confluent input node. Connects to a rest proxy and subscribes to the specified topic.
-    <p>Contents of the Kafka messages will be put into the outgoing <code>msg.payload</code> field
-    <p>Other Kafka metadata is provided in the <code>msg.key</code>, <code>msg.partition</code>, <code>msg.offset</code>, <code>msg._msgid</code>, and <code>msg.topic</code> fields
-    </script>
 
-<script type="text/javascript">
-    RED.nodes.registerType('confluent in',{
-       category: 'input',
-       defaults: {
-         name: {value:""},
-         topic: {value:"",required:true},
-         cgroup: {value:"node-red-confluent",required:true},
-         autocommit: {value:true, required:true},
-         proxy: {type:"rest-proxy", required:true}
-       },
-       color:"#F07430",
-       inputs:0,
-       outputs:1,
-       icon: "confluentio_30px.png",
-       label: function() {
-          return this.name||this.topic||"subscribe";
-       },
-       labelStyle: function() {
-          return this.name?"node_label_italic":"";
-       }
-    });
-                           
-</script>
-
-<script type="text/x-red" data-template-name="confluent out">
-    <div class="form-row">
-        <label for="node-input-proxy"><i class="icon-tag"></i> REST Proxy</label>
-        <input type="text" id="node-input-proxy">
-    </div>
-    <div class="form-row">
-        <label for="node-input-topic"><i class="icon-tasks"></i> Topic</label>
-        <input type="text" id="node-input-topic" placeholder="Topic">
-    </div>
-    <div class="form-row">
-        <label for="node-input-key"><i class="icon-tasks"></i> Key</label>
-        <input type="text" id="node-input-key" placeholder="Key">
-    </div>
-        <div class="form-row">
-        <label for="node-input-partition"><i class="icon-tasks"></i> Partition</label>
-        <input type="number" id="node-input-partition" placeholder="Partition">
-    </div>
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-</script>
-
-<script type="text/x-red" data-help-name="confluent out">
-    <p>Confluent output node. Connects to a Confluent REST proxy and publishes messages.
-    <p>Contents of the Kafka message will be the contents of the incoming <code>msg.payload</code> field
-    <p>If you want to publish Kafka messages in Key,Value format then either specify a static key value in the config dialog or (if blank) include a key string in the incoming <code>msg.key</code> field
-    <p>The Kafka topic to which messages are published can be specified as a static topic value in the config dialog or (if blank) included as a topic string in the incoming <code>msg.topic</code> field
-    <p>The Kafka partition to which messages are published can be specified as a static partition value in the config dialog or (if set to -1) included as a topic string in the incoming <code>msg.partition</code> field. If no partition is specified via either method then the default (round robin) Kafka partitioner is used.
-    <p>If any values are set in both the configuration window and in the incoming message, then the configuration dialog value has precedence.
-    <p>The output of this node includes key and value schema_id and <code>offsets</code> which is an array of objects containing the partition, offset, error_code, and error for each of the messages published. For example <code>{ offsets: [ { partition: 0, offset: 1071, error_code: null, error: null } ], key_schema_id: null, value_schema_id: null }</code>
-</script>
-
-<script type="text/javascript">
-    RED.nodes.registerType('confluent out',{
-       category: 'output',
-       defaults: {
-         name: {value:""},
-         topic: {value:""},
-         key: {value:""},
-         partition: {value:-1},
-         proxy: {type:"rest-proxy", required:true}
-       },
-       color:"#F07430",
-       inputs:1,
-       outputs:1,
-       icon: "confluentio_30px.png",
-       align: "right",
-       label: function() {
-          return this.name||this.topic||"publish";
-       },
-       labelStyle: function() {
-          return this.name?"node_label_italic":"";
-       }
-    });
-</script>
-
-<script type="text/x-red" data-template-name="rest-proxy">
-    <div class="form-row node-input-proxy">
-        <label for="node-config-input-proxy"><i class="icon-bookmark"></i> REST Proxy</label>
-        <input class="input-append-left" type="text" id="node-config-input-proxy" placeholder="http://localhost:8092" style="width: 40%;" >
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-clientid"><i class="icon-tag"></i> Client ID</label>
-        <input type="text" id="node-config-input-clientid" placeholder="Leave blank for auto generated">
-    </div>
-    <div class="form-tips">
-        <b>Note:</b>The "REST Proxy" is a URL in the for http://rest-proxy-hostname:8082
-    </div>
-</script>
-
-<script type="text/javascript">
-    RED.nodes.registerType('rest-proxy', {
-        category: 'config',
-        defaults: {
-            proxy: { value:"",required:true },
-            clientid: { value:"" }
-        },
-        label: function() {
-            if (this.proxy == "") { this.proxy = "http://localhost:8092"; }
-            return (this.clientid?this.clientid+"@":"")+this.proxy;
-        }
-    });
-</script>
-
-<script type="text/x-red" data-template-name="confluent metadata">
-    <div class="form-row">
-        <label for="node-input-proxy"><i class="icon-tag"></i> REST Proxy</label>
-        <input type="text" id="node-input-proxy">
-    </div>
-    <div class="form-row">
-        <label for="node-input-topic"><i class="icon-tasks"></i> Topic</label>
-        <input type="text" id="node-input-topic" placeholder="Topic">
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-</script>
-
-<script type="text/x-red" data-help-name="confluent metadata">
+<script type="text/x-red" data-help-name="ksql">
     <p>Confluent metadata node. Connects to a Confluent REST proxy and queries for metadata about brokers and topics.
     <p>The Kafka topic about which metadata is queried can be specificied as a static topic value in the config dialog or (if blank) included as a topic string in the incoming <code>msg.topic</code> field
     <p>If any values are set in both the configuration window and in the incoming message, then the configuration dialog value has precedence.
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('confluent metadata',{
+    RED.nodes.registerType('ksql',{
        category: 'output',
        defaults: {
          name: {value:""},
-         topic: {value:""},
-         proxy: {type:"rest-proxy", required:true}
+         command: {value:"SHOW STREAMS;"},
+         rest: {value:"http://localhost:8080", required:true}
        },
-       color:"#F07430",
+       color:"#FFFFFF",
        inputs:1,
        outputs:1,
-       icon: "confluentio_30px.png",
+       icon: "ksql.png",
        align: "right",
        label: function() {
-          return this.name||this.topic||"metadata";;
+          return this.name||this.topic||"KSQL";;
        },
        labelStyle: function() {
           return this.name?"node_label_italic":"";
        },
-       paletteLabel: "metadata"
+       paletteLabel: "KSQL"
     });
 </script>
 
+<script type="text/x-red" data-template-name="ksql query">
+    <div class="form-row">
+        <label for="node-input-rest"><i class="icon-tag"></i> KSQL Connection</label>
+        <input type="text" id="node-input-rest">
+    </div>
+    <div class="form-row">
+        <label for="node-input-query"><i class="icon-tasks"></i> KSQL Query</label>
+        <input type="text" id="node-input-query" placeholder="SELECT * from FOO;">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+
+<script type="text/x-red" data-help-name="ksql query">
+    <p>Confluent metadata node. Connects to a Confluent REST proxy and queries for metadata about brokers and topics.
+    <p>The Kafka topic about which metadata is queried can be specificied as a static topic value in the config dialog or (if blank) included as a topic string in the incoming <code>msg.topic</code> field
+    <p>If any values are set in both the configuration window and in the incoming message, then the configuration dialog value has precedence.
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('ksql query',{
+       category: 'output',
+       defaults: {
+         name: {value:""},
+         query: {value:"SELECT * from FOO;"},
+         rest: {value:"http://localhost:8080", required:true}
+       },
+       color:"#FFFFFF",
+       outputs:1,
+       icon: "ksql.png",
+       align: "right",
+       label: function() {
+          return this.name||this.topic||"QUERY";;
+       },
+       labelStyle: function() {
+          return this.name?"node_label_italic":"";
+       },
+       paletteLabel: "QUERY"
+    });
+</script>
