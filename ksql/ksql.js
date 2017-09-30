@@ -14,9 +14,7 @@ module.exports = function(RED) {
                 topic: msg.topic
             };
             var ksqlurl = node.rest + '/ksql';
-            var body = { 
-                        "ksql": node.command 
-                    };
+            var body = {  "ksql": node.command };
             console.log('ksqlurl = ' + ksqlurl);
             console.log('body = ' + util.inspect(body) );
  
