@@ -1,11 +1,12 @@
-##node-red-contrib-ksql
+node-red-contrib-ksql
+=====================
 
 Node-RED (http://nodered.org) nodes for KSQL processing of Apache Kafka streams. Written using the HTTP/REST interface provides with the Confluent KSQL Engine (https://github.com/confluentinc/ksql).
 
 Works with Confluent Open Source and Confluent Enterprise distributions (versions 3.3 or greater).
 
 
-##Install
+# Install
 
 Run the following command in the root directory of your Node-RED install
 
@@ -34,10 +35,10 @@ Click on the pencil icon to the right of the rest-proxy selection box to configu
 <img src="https://github.com/hjespers/node-red-contrib-ksql/blob/master/images/ksql-query-config.png">
 
 
-##Author
+# Author
 
 Hans Jespersen, https://github.com/hjespers
 
-##Feedback and Support
+# Feedback and Support
 
 For more information, feedback, or support see https://github.com/hjespers/node-red-contrib-ksql/issues
