@@ -20,8 +20,8 @@ Point your browser to http://localhost:1880
 
 You should see two KSQL nodes in the output area of the pallet on the left side of the screen.
 <ul>
-    <li>KSQL <img src="https://github.com/hjespers/node-red-contrib-ksql/blob/master/images/ksql.png"></li>
-    <li>QUERY <img src="https://github.com/hjespers/node-red-contrib-ksql/blob/master/images/ksql-query.png"></li>
+    <li>KSQL <img src="https://github.com/hjespers/node-red-contrib-ksql/blob/master/images/ksql-node.png"></li>
+    <li>QUERY <img src="https://github.com/hjespers/node-red-contrib-ksql/blob/master/images/ksql-query-node.png"></li>
 </ul>
 
 The main difference between the two nodes is that the KSQL node has an input so the configured KSQL statement is not executed immediately at startup like the QUERY node does. This is useful for chaining multiple KSQL commands together such that a CREATE statement can be executed before a dependant SELECT statement.
