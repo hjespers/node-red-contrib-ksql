@@ -1,5 +1,5 @@
 "use strict";
-module.exports = function(RED) {
+module.exports = function (RED) {
     var ksql = require("request");
     var util = require("util");
 
@@ -9,34 +9,34 @@ module.exports = function(RED) {
         this.rest = n.rest;
         var node = this;
 
-        node.on("input", function(msg) {
-            var outmsg = { 
+        node.on("input", function (msg) {
+            var outmsg = {
                 topic: msg.topic
             };
             var ksqlurl = node.rest + '/ksql';
-            var body = {  "ksql": node.command };
+            var body = { "ksql": node.command };
             console.log('ksqlurl = ' + ksqlurl);
-            console.log('body = ' + util.inspect(body) );
- 
-            ksql({ 
-                method: 'POST', 
-                url: ksqlurl, 
+            console.log('body = ' + util.inspect(body));
+
+            ksql({
+                method: 'POST',
+                url: ksqlurl,
                 headers: { 'Content-Type': 'application/json; charset=utf-8' },
                 body: JSON.stringify(body)
-            }, function ( error, response, body ){
+            }, function (error, response, body) {
                 var data;
-                if ( util.isNullOrUndefined(body) ) {
-                   console.log('[ksql] Null or Undefined response body');
+                if (util.isNullOrUndefined(body)) {
+                    console.log('[ksql] Null or Undefined response body');
                 } else {
                     //console.log('got reponse body = ' + util.inspect(body) );
                     try {
-                        data = JSON.parse( body );
+                        data = JSON.parse(body);
                         outmsg.payload = data;
-                        node.send(outmsg);  
+                        node.send(outmsg);
                     } catch (e) {
                         console.log('[ksql] caught the following error parsing response: ' + e);
                         outmsg.payload = data;
-                        node.send(outmsg);                          
+                        node.send(outmsg);
                     }
                 }
             });
@@ -52,44 +52,62 @@ module.exports = function(RED) {
         this.query = n.query;
         var node = this;
         //node.on("ready", function(msg) {
-            var outmsg = { 
-                //topic: msg.topic
-            };
-            var ksqlurl = node.rest + '/query';
-            var body = { "ksql": node.query };
-            //console.log('ksqlurl = ' + ksqlurl);
-            //console.log('body = ' + util.inspect(body) );
+        var outmsg = {
+            //topic: msg.topic
+        };
+        var ksqlurl = node.rest + '/query';
+        var body = { "ksql": node.query };
+        //console.log('ksqlurl = ' + ksqlurl);
+        //console.log('body = ' + util.inspect(body) );
 
-            ksql({ 
-                method: 'POST', 
-                url: ksqlurl, 
-                headers: { 'Content-Type': 'application/json; charset=utf-8' },
-                body: JSON.stringify(body) })
-                .on('data', function(chunk) {
-                    //console.log('got a chunk = ' + chunk);
-                    var data;
-                    if ( util.isNullOrUndefined(chunk) || chunk == "" || chunk == "\n") {
-                       //console.log('[ksql] Null or Undefined response chunk');
-                    } else {
-                        //console.log('got reponse body = ' + util.inspect(body) );
-                        try {
-                            data = JSON.parse( chunk );
-                            outmsg.payload = data;
-                            node.send(outmsg);  
-                        } catch (e) {
-                            console.log('[ksql] caught the following error parsing response: ' + e);
-                            outmsg.payload = e;
-                            node.send(outmsg);                          
+        ksql({
+            method: 'POST',
+            url: ksqlurl,
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify(body)
+        })
+            .on('data', function (chunk) {
+                //console.log('got a chunk = ' + chunk);
+                //console.log('type of chunk = ' + JSON.stringify(chunk));
+                var data;
+                if (util.isNullOrUndefined(chunk) || chunk == "" || chunk == "\n") {
+                    //console.log('[ksql] Null or Undefined response chunk');
+                } else {
+                    //console.log('got reponse body = ' + util.inspect(body) );
+                    //console.log("got chunk= "+ chunk);
+                    try {
+                        //data = JSON.parse( chunk );
+                        if (!chunk instanceof Buffer) {
+                            throw new Error("not an instance of Buffer");
                         }
+                        var stream = chunk.toString().split(/(?:\r\n|\r|\n)/g);
+                        if (stream && stream.length) {
+                            for (var message = 0; message < stream.length; message++) {
+                                try{
+                                    if(stream[message]){
+                                        outmsg.payload = JSON.parse(stream[message]);
+                                        node.send(outmsg);
+                                    }
+                                } catch (ex) {
+                                    console.log("[ksql] parsing error object= "+ stream[message]);
+                                }
+                            }
+                        } 
+
+                    } catch (e) {
+                        console.log('[ksql] caught the following error parsing response: ' + e);
+                        outmsg.payload = e;
+                        node.send(outmsg);
                     }
-                })
-                .on('error', function(error) {
-                    console.log('[ksql] ' + error);
-                    //TODO: not sure how to send error downstream or for debug tab in node-red
-                    outmsg.error = error;
-                    node.send(outmsg);
-                }); 
-            //});     
+                }
+            })
+            .on('error', function (error) {
+                console.log('[ksql] ' + error);
+                //TODO: not sure how to send error downstream or for debug tab in node-red
+                outmsg.error = error;
+                node.send(outmsg);
+            });
+        //});     
     }
     RED.nodes.registerType("ksql query", KSQLQueryNode);
 
